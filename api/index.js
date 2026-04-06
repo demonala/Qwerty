@@ -197,7 +197,7 @@ app.delete('/api/keys/:id', auth, requireAdmin, async (req, res) => {
   }
 });
 
-// ============ REDEEM KEY (FOR MOD MENU) ============
+// ============ REDEEM KEY (POST - for modern mod) ============
 app.post('/api/keys/redeem', async (req, res) => {
   const { key, hwid, username } = req.body;
   
@@ -283,6 +283,94 @@ app.post('/api/keys/redeem', async (req, res) => {
   } catch (err) {
     console.error('Redeem error:', err);
     res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// ============ REDEEM KEY (GET - for old mod injector) ============
+app.get('/api/keys/redeem', async (req, res) => {
+  const key = req.query.key || req.query.redeem;
+  const hwid = req.query.uid || req.query.hwid;
+  
+  if (!key) {
+    return res.status(400).send('ERROR: Key required');
+  }
+  
+  try {
+    const { data: keyData, error: keyError } = await supabase
+      .from('keys')
+      .select('*')
+      .eq('key_value', key)
+      .single();
+    
+    if (keyError || !keyData) {
+      return res.status(404).send('INVALID KEY');
+    }
+    
+    if (keyData.status !== 'active') {
+      return res.status(403).send('KEY BLOCKED');
+    }
+    
+    if (new Date(keyData.expires_at) < new Date()) {
+      await supabase.from('keys').update({ status: 'expired' }).eq('id', keyData.id);
+      return res.status(403).send('KEY EXPIRED');
+    }
+    
+    const { count: usedCount } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('key_id', keyData.id);
+    
+    if (usedCount >= keyData.device_limit) {
+      return res.status(403).send('DEVICE MAX SLOT - Used: ' + usedCount + ' / ' + keyData.device_limit);
+    }
+    
+    if (hwid) {
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('hwid', hwid)
+        .single();
+      
+      if (existingUser && existingUser.is_banned) {
+        return res.status(403).send('HWID BANNED');
+      }
+      
+      if (existingUser && existingUser.key_id !== keyData.id) {
+        await supabase
+          .from('users')
+          .update({ 
+            key_id: keyData.id, 
+            last_seen: new Date().toISOString(),
+            username: username || existingUser.username
+          })
+          .eq('hwid', hwid);
+      } else if (!existingUser) {
+        const randomSuffix = Math.floor(Math.random() * 90000) + 10000;
+        await supabase.from('users').insert({
+          username: 'user_' + randomSuffix,
+          key_id: keyData.id,
+          hwid: hwid,
+          ip_address: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          last_seen: new Date().toISOString(),
+          first_seen: new Date().toISOString()
+        });
+      }
+    }
+    
+    await supabase.from('audit_logs').insert({
+      action: 'redeem_key',
+      target: key,
+      details: { hwid: hwid }
+    });
+    
+    const daysLeft = Math.ceil((new Date(keyData.expires_at) - new Date()) / (1000 * 60 * 60 * 24));
+    const plan = keyData.key_type === 'vip' ? 'VIP' : 'STANDARD';
+    
+    res.send('LOGIN SUCCESS - Plan: ' + plan + ' | Expires in: ' + daysLeft + ' days');
+    
+  } catch (err) {
+    console.error('Redeem error:', err);
+    res.status(500).send('SERVER ERROR');
   }
 });
 
@@ -496,81 +584,5 @@ app.get('/api/health', (req, res) => {
     supabase: !!process.env.SUPABASE_URL
   });
 });
-// Support GET method for old mod injector
-app.get('/api/keys/redeem', async (req, res) => {
-  const key = req.query.key || req.query.redeem;
-  const hwid = req.query.uid || req.query.hwid;
-  
-  if (!key) {
-    return res.status(400).send('ERROR: Key required');
-  }
-  
-  try {
-    const { data: keyData, error: keyError } = await supabase
-      .from('keys')
-      .select('*')
-      .eq('key_value', key)
-      .single();
-    
-    if (keyError || !keyData) {
-      return res.status(404).send('INVALID KEY');
-    }
-    
-    if (keyData.status !== 'active') {
-      return res.status(403).send('KEY BLOCKED');
-    }
-    
-    if (new Date(keyData.expires_at) < new Date()) {
-      await supabase.from('keys').update({ status: 'expired' }).eq('id', keyData.id);
-      return res.status(403).send('KEY EXPIRED');
-    }
-    
-    const { count: usedCount } = await supabase
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-      .eq('key_id', keyData.id);
-    
-    if (usedCount >= keyData.device_limit) {
-      return res.status(403).send('DEVICE MAX SLOT - Used: ' + usedCount + ' / ' + keyData.device_limit);
-    }
-    
-    if (hwid) {
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('*')
-        .eq('hwid', hwid)
-        .single();
-      
-      if (existingUser && existingUser.is_banned) {
-        return res.status(403).send('HWID BANNED');
-      }
-      
-      if (existingUser && existingUser.key_id !== keyData.id) {
-        await supabase
-          .from('users')
-          .update({ key_id: keyData.id, last_seen: new Date().toISOString() })
-          .eq('hwid', hwid);
-      } else if (!existingUser) {
-        const randomSuffix = Math.floor(Math.random() * 90000) + 10000;
-        await supabase.from('users').insert({
-          username: 'user_' + randomSuffix,
-          key_id: keyData.id,
-          hwid: hwid,
-          ip_address: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-          last_seen: new Date().toISOString(),
-          first_seen: new Date().toISOString()
-        });
-      }
-    }
-    
-    const daysLeft = Math.ceil((new Date(keyData.expires_at) - new Date()) / (1000 * 60 * 60 * 24));
-    const plan = keyData.key_type == 'vip' and 'VIP' or 'STANDARD';
-    
-    res.send('LOGIN SUCCESS - Plan: ' + plan + ' | Expires in: ' + daysLeft + ' days');
-    
-  } catch (err) {
-    console.error('Redeem error:', err);
-    res.status(500).send('SERVER ERROR');
-  }
-});
+
 module.exports = app;
