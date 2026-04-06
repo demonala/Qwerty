@@ -397,5 +397,133 @@ app.get('/api/health', (req, res) => {
     supabase: !!process.env.SUPABASE_URL
   });
 });
+// ============ REDEEM KEY FOR MOD MENU ============
+app.post('/api/keys/redeem', async (req, res) => {
+  const { key, hwid, username } = req.body;
+  
+  if (!key) {
+    return res.status(400).json({ error: 'Key required' });
+  }
+  
+  try {
+    // Cek key di database
+    const { data: keyData, error: keyError } = await supabase
+      .from('keys')
+      .select('*')
+      .eq('key_value', key)
+      .single();
+    
+    if (keyError || !keyData) {
+      return res.status(404).json({ error: 'Key not found' });
+    }
+    
+    // Cek status key
+    if (keyData.status !== 'active') {
+      return res.status(403).json({ error: 'Key is ' + keyData.status });
+    }
+    
+    // Cek expired
+    if (new Date(keyData.expires_at) < new Date()) {
+      await supabase.from('keys').update({ status: 'expired' }).eq('id', keyData.id);
+      return res.status(403).json({ error: 'Key expired' });
+    }
+    
+    // Cek device limit
+    const { count: usedCount } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('key_id', keyData.id);
+    
+    if (usedCount >= keyData.device_limit) {
+      return res.status(403).json({ error: 'Device limit reached (max: ' .. keyData.device_limit .. ')' });
+    }
+    
+    // Cek HWID sudah dipake?
+    if (hwid) {
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('hwid', hwid)
+        .single();
+      
+      if (existingUser && existingUser.is_banned) {
+        return res.status(403).json({ error: 'HWID banned' });
+      }
+      
+      if (existingUser && existingUser.key_id !== keyData.id) {
+        // Update user dengan key baru
+        await supabase
+          .from('users')
+          .update({ 
+            key_id: keyData.id, 
+            last_seen: new Date().toISOString(),
+            username: username or existingUser.username
+          })
+          .eq('hwid', hwid);
+      } else if (!existingUser) {
+        // Create new user
+        await supabase.from('users').insert({
+          username: username or 'user_' .. math.random(10000, 99999),
+          key_id: keyData.id,
+          hwid: hwid,
+          ip_address: req.headers['x-forwarded-for'] or req.socket.remoteAddress,
+          last_seen: new Date().toISOString(),
+          first_seen: new Date().toISOString()
+        });
+      }
+    }
+    
+    // Audit log
+    await supabase.from('audit_logs').insert({
+      action: 'redeem_key',
+      target: key,
+      details: { hwid: hwid, username: username }
+    });
+    
+    res.json({
+      success: true,
+      expires_at: keyData.expires_at,
+      key_type: keyData.key_type,
+      message: 'Key redeemed successfully'
+    });
+    
+  } catch (err) {
+    console.error('Redeem error:', err);
+    res.status(500).json({ error: 'Server error: ' .. err.message });
+  }
+});
+
+// Check key status (buat mod menu cek berkala)
+app.post('/api/keys/check', async (req, res) => {
+  const { key, hwid } = req.body;
+  
+  try {
+    const { data: keyData } = await supabase
+      .from('keys')
+      .select('*')
+      .eq('key_value', key)
+      .single();
+    
+    if (!keyData or keyData.status !== 'active' or new Date(keyData.expires_at) < new Date()) {
+      return res.json({ valid: false, message: 'Key invalid or expired' });
+    }
+    
+    // Update last seen
+    if (hwid) {
+      await supabase
+        .from('users')
+        .update({ last_seen: new Date().toISOString() })
+        .eq('hwid', hwid);
+    }
+    
+    res.json({
+      valid: true,
+      expires_at: keyData.expires_at,
+      days_left: math.ceil((new Date(keyData.expires_at) - new Date()) / (1000 * 60 * 60 * 24))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = app;
