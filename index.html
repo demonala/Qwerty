@@ -2,483 +2,260 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>QWERTY PANEL • NEO ADMIN</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>QWERTY PANEL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #05050A;
-      color: #ffffff;
-      transition: background 0.2s ease;
-      min-height: 100vh;
-    }
-
-    /* Light mode */
-    body.light {
-      background: #f1f5f9;
-      color: #0f172a;
-    }
-
-    /* GLOBAL GLASS */
-    .glass {
-      background: rgba(15, 25, 35, 0.65);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(0, 255, 255, 0.2);
-      border-radius: 28px;
-    }
-
-    body.light .glass {
-      background: rgba(255, 255, 255, 0.7);
-      border-color: rgba(0, 200, 255, 0.3);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    }
-
-    /* LOGIN */
-    .login-wrapper {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .login-card {
-      background: rgba(8, 12, 20, 0.9);
-      backdrop-filter: blur(16px);
-      border-radius: 48px;
-      padding: 32px 28px;
-      width: 100%;
-      max-width: 400px;
-      border: 1px solid rgba(0, 255, 255, 0.4);
-      box-shadow: 0 25px 45px rgba(0,0,0,0.5);
-      transition: 0.2s;
-    }
-
-    body.light .login-card {
-      background: rgba(255, 255, 255, 0.9);
-      border-color: #0ea5e9;
-    }
-
-    .logo-icon {
-      font-size: 48px;
-      text-align: center;
-      background: linear-gradient(135deg, #0ff, #a855f7);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      font-size: 32px;
-      font-weight: 800;
-      text-align: center;
-      letter-spacing: -0.5px;
-    }
-
-    .input-field {
-      margin-bottom: 20px;
-    }
-
-    .input-field label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      opacity: 0.7;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .input-field input {
-      width: 100%;
-      padding: 14px 18px;
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(0,255,255,0.3);
-      border-radius: 34px;
-      color: white;
-      font-size: 16px;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    body.light .input-field input {
-      background: white;
-      color: #0f172a;
-      border-color: #94a3b8;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(90deg, #0ff, #a855f7);
-      border: none;
-      border-radius: 40px;
-      font-weight: bold;
-      font-size: 16px;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    /* DASHBOARD */
-    .dashboard {
-      display: none;
-      padding-bottom: 30px;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      background: rgba(5,5,10,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,255,255,0.2);
-    }
-
-    body.light .topbar {
-      background: rgba(255,255,255,0.85);
-    }
-
-    .menu-toggle {
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -280px;
-      width: 280px;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(20px);
-      z-index: 100;
-      transition: 0.3s ease;
-      padding: 24px 16px;
-      border-right: 1px solid #0ff;
-    }
-
-    .sidebar.open {
-      left: 0;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      margin: 8px 0;
-      border-radius: 40px;
-      cursor: pointer;
-      transition: 0.2s;
-      color: #ccc;
-    }
-
-    .nav-item.active, .nav-item:hover {
-      background: rgba(0,255,255,0.15);
-      color: #0ff;
-    }
-
-    .main-content {
-      padding: 20px 16px 100px;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    /* Cards */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: rgba(15,25,35,0.7);
-      border-radius: 28px;
-      padding: 18px;
-      text-align: center;
-      border: 1px solid rgba(0,255,255,0.2);
-    }
-
-    .stat-number {
-      font-size: 32px;
-      font-weight: 800;
-      background: linear-gradient(135deg,#0ff,#c084fc);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .card {
-      background: rgba(10,15,25,0.6);
-      border-radius: 32px;
-      padding: 20px;
-      margin-bottom: 24px;
-      border: 1px solid rgba(0,255,255,0.15);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 10px 4px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .badge {
-      background: rgba(0,255,136,0.2);
-      color: #0f0;
-      padding: 4px 10px;
-      border-radius: 30px;
-      font-size: 11px;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0f0f1a;
-      border: 1px solid #0ff;
-      padding: 10px 24px;
-      border-radius: 60px;
-      z-index: 999;
-    }
-
-    @media (max-width: 500px) {
-      .stats-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-      .card {
-        padding: 16px;
-      }
-    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#fff;min-height:100vh}
+    body.light{background:#f0f4f8;color:#1a1a2e}
+    .login-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0a0f,#1a1a2e)}
+    .login-card{background:rgba(10,20,30,0.95);backdrop-filter:blur(16px);border-radius:48px;padding:40px 32px;width:100%;max-width:400px;border:1px solid rgba(0,255,255,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+    .login-card h1{font-size:42px;font-weight:800;text-align:center;background:linear-gradient(135deg,#0ff,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .input-group{margin-bottom:20px}
+    .input-group label{font-size:11px;text-transform:uppercase;opacity:0.6;display:block;margin-bottom:6px}
+    .input-group input{width:100%;padding:14px 18px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,255,255,0.2);border-radius:30px;color:white;font-size:15px}
+    .btn{width:100%;padding:14px;background:linear-gradient(90deg,#0ff,#a855f7);border:none;border-radius:30px;font-weight:700;color:white;cursor:pointer}
+    .dashboard{display:none}
+    .topbar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,255,255,0.2);z-index:50}
+    .sidebar{position:fixed;top:0;left:-280px;width:260px;height:100%;background:rgba(0,0,0,0.95);backdrop-filter:blur(20px);z-index:100;transition:0.3s;padding:20px;border-right:1px solid #0ff}
+    .sidebar.open{left:0}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;margin:6px 0;border-radius:40px;cursor:pointer;color:#aaa}
+    .nav-item:hover,.nav-item.active{background:rgba(0,255,255,0.1);color:#0ff}
+    .main-content{padding:20px;max-width:800px;margin:0 auto}
+    .card{background:rgba(15,25,40,0.6);border-radius:28px;padding:20px;margin-bottom:20px;border:1px solid rgba(0,255,255,0.1)}
+    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+    .stat-card{background:rgba(0,0,0,0.3);border-radius:24px;padding:18px;text-align:center}
+    .stat-number{font-size:32px;font-weight:800;color:#0ff}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:10px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)}
+    .badge{background:rgba(0,255,0,0.2);color:#0f0;padding:4px 10px;border-radius:20px;font-size:11px}
+    .upload-area{border:2px dashed rgba(0,255,255,0.3);border-radius:24px;padding:30px;text-align:center;cursor:pointer;margin-bottom:16px}
+    .library-item{background:rgba(0,0,0,0.3);border-radius:16px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #0ff;padding:10px 20px;border-radius:40px;z-index:1000}
+    @media (max-width:600px){.stats-grid{grid-template-columns:1fr 1fr}.main-content{padding:16px}}
   </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div id="loginScreen" class="login-wrapper">
+<div class="login-container" id="loginScreen">
   <div class="login-card">
-    <div class="logo-icon"><i class="fas fa-keyboard"></i></div>
     <h1>QWERTY</h1>
-    <p style="text-align:center; margin-bottom: 28px; opacity:0.7;">SECURE NEO ADMIN</p>
-    <div class="input-field">
-      <label><i class="fas fa-user"></i> USERNAME</label>
-      <input type="text" id="loginUsername" placeholder="owner" autocomplete="off">
-    </div>
-    <div class="input-field">
-      <label><i class="fas fa-lock"></i> PASSWORD</label>
-      <input type="password" id="loginPassword" placeholder="••••••">
-    </div>
-    <button class="btn" onclick="performLogin()"><i class="fas fa-shield-halbed"></i> AUTHENTICATE</button>
-    <div id="loginError" style="color:#ff5566; margin-top: 20px; text-align:center; font-size:13px;"></div>
+    <p style="text-align:center; margin:10px 0 30px; opacity:0.6;">ADMIN PANEL</p>
+    <div class="input-group"><label>USERNAME</label><input type="text" id="loginUser" placeholder="admin"></div>
+    <div class="input-group"><label>PASSWORD</label><input type="password" id="loginPass" placeholder="••••••"></div>
+    <button class="btn" onclick="login()"><i class="fas fa-key"></i> LOGIN</button>
+    <div id="loginError" style="color:#f55; text-align:center; margin-top:16px;"></div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="dashboard">
+<div class="dashboard" id="dashboard">
   <div class="topbar">
-    <i class="fas fa-bars menu-toggle" onclick="toggleSidebar()"></i>
-    <div><i class="fas fa-terminal"></i> QWERTY</div>
-    <div><i class="fas fa-moon" onclick="toggleTheme()" style="cursor:pointer"></i></div>
+    <i class="fas fa-bars" style="font-size:24px; cursor:pointer" onclick="toggleSidebar()"></i>
+    <span><i class="fas fa-terminal"></i> QWERTY</span>
+    <i class="fas fa-moon" style="cursor:pointer" onclick="toggleTheme()"></i>
   </div>
-
   <div class="sidebar" id="sidebar">
-    <div class="nav-item active" onclick="navigateTo('overview')"><i class="fas fa-chart-line"></i> Overview</div>
-    <div class="nav-item" onclick="navigateTo('keygen')"><i class="fas fa-key"></i> Key Generator</div>
-    <div class="nav-item" onclick="navigateTo('keys')"><i class="fas fa-database"></i> Key Manager</div>
-    <div class="nav-item" onclick="navigateTo('users')"><i class="fas fa-users"></i> User Monitor</div>
-    <div class="nav-item" id="adminNavItem" style="display:none" onclick="navigateTo('admins')"><i class="fas fa-user-shield"></i> Admin Manager</div>
-    <div class="nav-item" onclick="navigateTo('audit')"><i class="fas fa-history"></i> Audit Logs</div>
-    <div style="margin-top: 40px;"><hr><button onclick="logout()" style="background:none; border:1px solid #ff5566; border-radius: 30px; padding: 8px; width:100%"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+    <div class="nav-item active" onclick="showPage('overview')"><i class="fas fa-chart-line"></i> Overview</div>
+    <div class="nav-item" onclick="showPage('keygen')"><i class="fas fa-key"></i> Key Generator</div>
+    <div class="nav-item" onclick="showPage('keys')"><i class="fas fa-database"></i> Key Manager</div>
+    <div class="nav-item" onclick="showPage('users')"><i class="fas fa-users"></i> Users</div>
+    <div class="nav-item" onclick="showPage('library')"><i class="fas fa-book"></i> Library</div>
+    <div class="nav-item" id="adminNav" style="display:none" onclick="showPage('admins')"><i class="fas fa-user-shield"></i> Admins</div>
+    <div class="nav-item" onclick="showPage('audit')"><i class="fas fa-history"></i> Audit</div>
+    <div style="margin-top:40px;"><hr><button onclick="logout()" style="width:100%; background:#f55; border:none; padding:8px; border-radius:30px; color:white;">Logout</button></div>
   </div>
-
-  <div class="main-content" id="mainContent"></div>
+  <div class="main-content" id="content"></div>
 </div>
 
 <script>
-  const API_BASE = ''; // relative to origin
+  const API = '';
   let token = localStorage.getItem('token');
   let currentUser = null;
 
-  // ========== UI RENDER ==========
-  const sections = {
-    overview: `
-      <div class="stats-grid" id="statsGrid"></div>
-      <div class="card"><h3>📋 Recent Keys</h3><div id="recentKeysTable"></div></div>
-    `,
-    keygen: `
-      <div class="card">
-        <h3>✨ Generate Key</h3>
-        <div class="input-field"><label>Prefix</label><input type="text" id="kgPrefix" placeholder="VIP"></div>
-        <div class="input-field"><label>Duration (days)</label><select id="kgDuration"><option value="30">30 Days</option><option value="90">90 Days</option><option value="365">1 Year</option><option value="lifetime">Lifetime</option></select></div>
-        <div class="input-field"><label>Device Limit</label><input type="number" id="kgDeviceLimit" value="1"></div>
-        <button class="btn" onclick="generateNewKey()">GENERATE</button>
-        <div id="keyResult" style="margin-top:16px; font-family: monospace;"></div>
-      </div>
-    `,
-    keys: `<div class="card"><h3>🔑 All Keys</h3><div id="keysList"></div></div>`,
-    users: `<div class="card"><h3>👥 User Sessions</h3><div id="usersList"></div></div>`,
-    admins: `<div class="card"><h3>👑 Admin Manager</h3><div id="adminsList"></div><hr><div class="input-field"><label>New Admin</label><input id="newAdminUser" placeholder="username"></div><div class="input-field"><label>Password</label><input id="newAdminPass" type="password"></div><button class="btn" onclick="createNewAdmin()">Create Admin</button></div>`,
-    audit: `<div class="card"><h3>📜 Audit Trail</h3><div id="auditList"></div></div>`
-  };
-
-  async function renderSection(name) {
-    document.getElementById('mainContent').innerHTML = sections[name] || sections.overview;
-    if (name === 'overview') { loadStats(); loadRecentKeys(); }
-    if (name === 'keys') loadAllKeys();
-    if (name === 'users') loadAllUsers();
-    if (name === 'admins') loadAllAdmins();
-    if (name === 'audit') loadAuditLogs();
-  }
-
-  async function loadStats() {
-    const res = await fetch(`${API_BASE}/api/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const data = await res.json();
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="stat-card"><div class="stat-number">${data.totalKeys||0}</div><div>Total Keys</div></div>
-      <div class="stat-card"><div class="stat-number">${data.activeKeys||0}</div><div>Active</div></div>
-      <div class="stat-card"><div class="stat-number">${data.totalUsers||0}</div><div>Users</div></div>
-      <div class="stat-card"><div class="stat-number">${data.onlineUsers||0}</div><div>Online</div></div>
-    `;
-  }
-
-  async function loadRecentKeys() {
-    const res = await fetch(`${API_BASE}/api/keys`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const keys = await res.json();
-    const html = `<table>${keys.slice(0,5).map(k => `<tr><td><code>${k.key_value}</code></td><td><span class="badge">${k.status}</span></td><td>${new Date(k.expires_at).toLocaleDateString()}</td></tr>`).join('')}</table>`;
-    document.getElementById('recentKeysTable').innerHTML = html || '<p>No keys</p>';
-  }
-
-  async function generateNewKey() {
-    const body = {
-      prefix: document.getElementById('kgPrefix')?.value,
-      duration: document.getElementById('kgDuration')?.value,
-      deviceLimit: parseInt(document.getElementById('kgDeviceLimit')?.value),
-      keyType: 'standard'
-    };
-    const res = await fetch(`${API_BASE}/api/keys/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(body)
-    });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('keyResult').innerHTML = `<div style="background:#0ff1; padding:12px; border-radius:24px">✅ Key: <strong>${data.key.key_value}</strong><br>Expires: ${new Date(data.key.expires_at).toLocaleString()}</div>`;
-      loadRecentKeys(); loadStats();
-    } else alert('Gagal generate key');
-  }
-
-  async function loadAllKeys() {
-    const res = await fetch(`${API_BASE}/api/keys`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const keys = await res.json();
-    document.getElementById('keysList').innerHTML = `<table>${keys.map(k => `<tr><td><code>${k.key_value}</code></td><td>${k.status}</td><td><button onclick="banKey(${k.id})">Ban</button></td></tr>`).join('')}</table>`;
-  }
-  async function loadAllUsers() {
-    const res = await fetch(`${API_BASE}/api/users`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const users = await res.json();
-    document.getElementById('usersList').innerHTML = `<table>${users.map(u => `<tr><td>${u.username||'?'}</td><td>${u.hwid?.slice(0,10)}</td><td>${u.ip_address}</td></tr>`).join('')}</table>`;
-  }
-  async function loadAllAdmins() {
-    const res = await fetch(`${API_BASE}/api/admins`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const admins = await res.json();
-    document.getElementById('adminsList').innerHTML = `<table>${admins.map(a => `<tr><td>${a.username}</td><td>${a.role}</td><td><button onclick="deleteAdmin(${a.id})">❌</button></td></tr>`).join('')}</table>`;
-  }
-  async function createNewAdmin() {
-    const username = document.getElementById('newAdminUser').value;
-    const password = document.getElementById('newAdminPass').value;
-    await fetch(`${API_BASE}/api/admins`, { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({username,password,role:'admin'}) });
-    loadAllAdmins();
-  }
-  async function loadAuditLogs() {
-    const res = await fetch(`${API_BASE}/api/audit`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const logs = await res.json();
-    document.getElementById('auditList').innerHTML = `<table>${logs.slice(0,20).map(l => `<tr><td>${l.action}</td><td>${l.target||'-'}</td><td>${new Date(l.created_at).toLocaleString()}</td></tr>`).join('')}</table>`;
-  }
-
-  window.banKey = async (id) => { await fetch(`${API_BASE}/api/keys/${id}/status`, { method:'PUT', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body:JSON.stringify({status:'banned'}) }); loadAllKeys(); };
-  window.deleteAdmin = async (id) => { await fetch(`${API_BASE}/api/admins/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} }); loadAllAdmins(); };
-
-  // ========== LOGIN ==========
-  async function performLogin() {
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
+  async function login() {
+    const username = document.getElementById('loginUser').value;
+    const password = document.getElementById('loginPass').value;
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(API + '/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error || 'Login failed');
-      token = json.token;
-      currentUser = json.user;
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      token = data.token;
+      currentUser = data.user;
       localStorage.setItem('token', token);
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
-      if (currentUser.role === 'owner') document.getElementById('adminNavItem').style.display = 'flex';
-      navigateTo('overview');
-    } catch (err) {
-      document.getElementById('loginError').innerText = err.message;
+      if (currentUser.role === 'owner') document.getElementById('adminNav').style.display = 'flex';
+      showPage('overview');
+    } catch(e) {
+      document.getElementById('loginError').innerText = e.message;
     }
   }
 
-  function navigateTo(section) {
-    renderSection(section);
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    event?.target?.closest('.nav-item')?.classList?.add('active');
-    if (window.innerWidth < 700) toggleSidebar(true);
+  function logout() { localStorage.removeItem('token'); location.reload(); }
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+  function toggleTheme() { document.body.classList.toggle('light'); }
+
+  async function fetchAPI(path, options = {}) {
+    const res = await fetch(API + path, {
+      ...options,
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...options.headers }
+    });
+    return res.json();
   }
 
-  function toggleSidebar(forceClose) {
-    const sidebar = document.getElementById('sidebar');
-    if (forceClose) sidebar.classList.remove('open');
-    else sidebar.classList.toggle('open');
+  function showToast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
   }
 
-  function logout() {
-    localStorage.removeItem('token');
-    location.reload();
+  // Pages content
+  const pages = {
+    overview: '<div class="stats-grid" id="statsGrid"></div><div class="card"><h3>Recent Keys</h3><div id="recentKeys"></div></div>',
+    keygen: '<div class="card"><h3>Generate Key</h3><div class="input-group"><label>Prefix</label><input type="text" id="kgPrefix"></div><div class="input-group"><label>Duration (days)</label><select id="kgDuration"><option value="30">30 Days</option><option value="90">90 Days</option><option value="365">1 Year</option></select></div><div class="input-group"><label>Device Limit</label><input type="number" id="kgDeviceLimit" value="1"></div><button class="btn" onclick="generateKey()">Generate</button><div id="keyResult" style="margin-top:16px;"></div></div>',
+    keys: '<div class="card"><h3>All Keys</h3><div id="keysList"></div></div>',
+    users: '<div class="card"><h3>Users</h3><div id="usersList"></div></div>',
+    library: '<div class="card"><h3>Library Manager</h3><div class="upload-area" onclick="document.getElementById(\'libFile\').click()"><i class="fas fa-cloud-upload-alt" style="font-size:32px"></i><p>Click to upload .so file</p><input type="file" id="libFile" style="display:none" accept=".so" onchange="uploadLib()"></div><div class="input-group"><label>Library Name</label><input type="text" id="libName" placeholder="libmlite.so"></div><div class="input-group"><label>Version</label><input type="text" id="libVersion" placeholder="1.0.0"></div><div id="libList"></div></div>',
+    admins: '<div class="card"><h3>Admins</h3><div id="adminsList"></div><hr><div class="input-group"><label>New Admin</label><input id="newAdminUser"></div><div class="input-group"><label>Password</label><input id="newAdminPass" type="password"></div><button class="btn" onclick="createAdmin()">Create</button></div>',
+    audit: '<div class="card"><h3>Audit Logs</h3><div id="auditList"></div></div>'
+  };
+
+  async function showPage(name) {
+    document.getElementById('content').innerHTML = pages[name];
+    if (name === 'overview') { loadStats(); loadRecent(); }
+    if (name === 'keys') loadKeys();
+    if (name === 'users') loadUsers();
+    if (name === 'library') loadLibs();
+    if (name === 'admins') loadAdmins();
+    if (name === 'audit') loadAudit();
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (event && event.target) event.target.closest('.nav-item')?.classList.add('active');
+    if (window.innerWidth < 700) toggleSidebar();
   }
 
-  function toggleTheme() {
-    document.body.classList.toggle('light');
+  async function loadStats() {
+    const data = await fetchAPI('/api/stats');
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><div class="stat-number">${data.totalKeys}</div><div>Total Keys</div></div>
+      <div class="stat-card"><div class="stat-number">${data.activeKeys}</div><div>Active</div></div>
+      <div class="stat-card"><div class="stat-number">${data.totalUsers}</div><div>Users</div></div>
+      <div class="stat-card"><div class="stat-number">${data.onlineUsers}</div><div>Online</div></div>`;
   }
 
-  // auto session
+  async function loadRecent() {
+    const keys = await fetchAPI('/api/keys');
+    const html = keys.slice(0,5).map(k => `<tr><td><code>${k.key_value}</code></td><td><span class="badge">${k.status}</span></td><td>${new Date(k.expires_at).toLocaleDateString()}</td></tr>`).join('');
+    document.getElementById('recentKeys').innerHTML = `<table><tr><th>Key</th><th>Status</th><th>Expires</th></tr>${html}</table>`;
+  }
+
+  async function generateKey() {
+    const data = await fetchAPI('/api/keys/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        prefix: document.getElementById('kgPrefix').value,
+        duration: document.getElementById('kgDuration').value,
+        deviceLimit: parseInt(document.getElementById('kgDeviceLimit').value)
+      })
+    });
+    if (data.success) {
+      document.getElementById('keyResult').innerHTML = `<code>${data.key.key_value}</code><br>Expires: ${new Date(data.key.expires_at).toLocaleString()}`;
+      loadStats(); loadRecent();
+      showToast('Key generated!');
+    }
+  }
+
+  async function loadKeys() {
+    const keys = await fetchAPI('/api/keys');
+    const html = keys.map(k => `<tr><td><code>${k.key_value}</code></td><td>${k.status}</td><td><button onclick="banKey(${k.id})">Ban</button> <button onclick="deleteKey(${k.id})">Del</button></td></tr>`).join('');
+    document.getElementById('keysList').innerHTML = `<table><tr><th>Key</th><th>Status</th><th>Actions</th></tr>${html}</table>`;
+  }
+
+  async function loadUsers() {
+    const users = await fetchAPI('/api/users');
+    const html = users.map(u => `<tr><td>${u.username||'-'}</td><td>${u.hwid?.slice(0,12)||'-'}</td><td>${u.ip_address||'-'}</td><td>${new Date(u.last_seen).toLocaleString()}</td></tr>`).join('');
+    document.getElementById('usersList').innerHTML = `<table><tr><th>User</th><th>HWID</th><th>IP</th><th>Last Seen</th></tr>${html}</table>`;
+  }
+
+  async function loadLibs() {
+    const libs = await fetchAPI('/api/libraries');
+    if (!libs.length) { document.getElementById('libList').innerHTML = '<p>No libraries</p>'; return; }
+    const html = libs.map(l => `<div class="library-item"><div><strong>${l.name}</strong><br><small>v${l.version} | Downloads: ${l.downloads||0}</small></div><div><button class="btn" style="padding:6px 12px;" onclick="deleteLib(${l.id})">Delete</button></div></div>`).join('');
+    document.getElementById('libList').innerHTML = html;
+  }
+
+  async function uploadLib() {
+    const file = document.getElementById('libFile').files[0];
+    if (!file) return;
+    const libName = document.getElementById('libName').value;
+    const version = document.getElementById('libVersion').value;
+    if (!libName || !version) { alert('Name and version required'); return; }
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const base64 = e.target.result.split(',')[1];
+      await fetchAPI('/api/upload/lib', { method: 'POST', body: JSON.stringify({ libName, version, data: base64 }) });
+      loadLibs();
+      showToast('Library uploaded!');
+      document.getElementById('libName').value = '';
+      document.getElementById('libVersion').value = '';
+      document.getElementById('libFile').value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function deleteLib(id) {
+    if (!confirm('Delete this library?')) return;
+    await fetchAPI('/api/libraries/' + id, { method: 'DELETE' });
+    loadLibs();
+  }
+
+  async function loadAdmins() {
+    const admins = await fetchAPI('/api/admins');
+    const html = admins.map(a => `<tr><td>${a.username}</td><td>${a.role}</td><td>${a.id !== currentUser?.id ? `<button onclick="deleteAdmin(${a.id})">Delete</button>` : '-'}</td></tr>`).join('');
+    document.getElementById('adminsList').innerHTML = `<table><tr><th>Username</th><th>Role</th><th>Actions</th></tr>${html}</table>`;
+  }
+
+  async function createAdmin() {
+    const username = document.getElementById('newAdminUser').value;
+    const password = document.getElementById('newAdminPass').value;
+    await fetchAPI('/api/admins', { method: 'POST', body: JSON.stringify({ username, password, role: 'admin' }) });
+    loadAdmins();
+    showToast('Admin created');
+  }
+
+  async function deleteAdmin(id) {
+    await fetchAPI('/api/admins/' + id, { method: 'DELETE' });
+    loadAdmins();
+  }
+
+  async function loadAudit() {
+    const logs = await fetchAPI('/api/audit');
+    const html = logs.slice(0,30).map(l => `<tr><td>${l.admins?.username||'-'}</td><td>${l.action}</td><td>${l.target||'-'}</td><td>${new Date(l.created_at).toLocaleString()}</td></tr>`).join('');
+    document.getElementById('auditList').innerHTML = `<table><tr><th>Admin</th><th>Action</th><th>Target</th><th>Time</th></tr>${html}</table>`;
+  }
+
+  window.banKey = async (id) => {
+    await fetchAPI('/api/keys/' + id + '/status', { method: 'PUT', body: JSON.stringify({ status: 'banned' }) });
+    loadKeys();
+    showToast('Key banned');
+  };
+  window.deleteKey = async (id) => {
+    await fetchAPI('/api/keys/' + id, { method: 'DELETE' });
+    loadKeys();
+    showToast('Key deleted');
+  };
+  window.deleteAdmin = deleteAdmin;
+
   if (token) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    currentUser = { role: 'owner' }; // fallback
-    navigateTo('overview');
-    loadStats();
+    currentUser = { role: 'admin' };
+    showPage('overview');
   }
-
-  // Toast
-  function showToast(msg) {
-    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-  }
-  window.showToast = showToast;
 </script>
 </body>
-</html> 
+</html>
